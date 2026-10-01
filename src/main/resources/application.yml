@@ -1,0 +1,42 @@
+quarkus:
+  application:
+    name: fmarket-java
+
+  datasource:
+    db-kind: postgresql
+    username: ${DB_USERNAME:fmarket}
+    password: ${DB_PASSWORD:fmarket}
+    jdbc:
+      url: ${DB_URL:jdbc:postgresql://localhost:5432/fmarket}
+
+  hibernate-orm:
+    database:
+      generation: update
+    log:
+      sql: false
+
+  http:
+    port: 8080
+
+"%dev":
+  quarkus:
+    datasource:
+      devservices:
+        enabled: true
+        image-name: postgres:16-alpine
+    hibernate-orm:
+      log:
+        sql: true
+
+"%test":
+  quarkus:
+    datasource:
+      devservices:
+        enabled: true
+        image-name: postgres:16-alpine
+
+"%prod":
+  quarkus:
+    hibernate-orm:
+      database:
+        generation: validate

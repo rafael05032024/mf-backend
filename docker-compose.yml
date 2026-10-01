@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: fmarket
+      POSTGRES_PASSWORD: fmarket
+      POSTGRES_DB: fmarket
+    ports:
+      - "5432:5432"
+    volumes:
+      - fmarket-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fmarket"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: src/main/docker/Dockerfile.jvm
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/fmarket
+      DB_USERNAME: fmarket
+      DB_PASSWORD: fmarket
+      QUARKUS_PROFILE: prod
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  fmarket-db-data:
