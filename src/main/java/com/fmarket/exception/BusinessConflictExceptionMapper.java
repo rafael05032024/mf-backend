@@ -1,6 +1,6 @@
 package com.fmarket.exception;
 
-import com.fmarket.dto.ResponseCreateAccountDTO;
+import com.fmarket.dto.CreateAccountResponseDTO;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
@@ -13,7 +13,7 @@ public class BusinessConflictExceptionMapper implements ExceptionMapper<Business
     public Response toResponse(BusinessConflictException e) {
         return Response.status(Response.Status.CONFLICT)
                 .type(MediaType.APPLICATION_JSON)
-                .entity(new ResponseCreateAccountDTO(e.getMessage()))
+                .entity(new CreateAccountResponseDTO(e.getMessage()))
                 .build();
     }
 }

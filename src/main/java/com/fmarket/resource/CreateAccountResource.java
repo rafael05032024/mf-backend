@@ -1,6 +1,6 @@
 package com.fmarket.resource;
 
-import com.fmarket.dto.RequestCreateAccountDTO;
+import com.fmarket.dto.CreateAccountRequestDTO;
 import com.fmarket.service.CreateAccountService;
 
 import jakarta.inject.Inject;
@@ -19,7 +19,7 @@ public class CreateAccountResource {
     CreateAccountService createAccountService;
 
     @POST
-    public Response create(@Valid RequestCreateAccountDTO request) {
+    public Response create(@Valid CreateAccountRequestDTO request) {
         createAccountService.create(request);
         return Response.noContent().build();
     }

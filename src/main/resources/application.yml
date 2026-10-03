@@ -21,7 +21,16 @@ quarkus:
   http:
     port: 8080
 
+app:
+  jwt:
+    issuer: fmarket
+    secret: ${JWT_SECRET}
+    expiration: PT2H
+
 "%dev":
+  app:
+    jwt:
+      secret: ${JWT_SECRET:dev-only-secret-change-me-0123456789abcdef}
   quarkus:
     datasource:
       devservices:
@@ -32,6 +41,9 @@ quarkus:
         sql: true
 
 "%test":
+  app:
+    jwt:
+      secret: test-only-secret-change-me-0123456789abcdef
   quarkus:
     datasource:
       devservices:

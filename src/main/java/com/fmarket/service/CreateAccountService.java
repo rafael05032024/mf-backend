@@ -1,6 +1,6 @@
 package com.fmarket.service;
 
-import com.fmarket.dto.RequestCreateAccountDTO;
+import com.fmarket.dto.CreateAccountRequestDTO;
 import com.fmarket.exception.BusinessConflictException;
 import com.fmarket.model.UserModel;
 import com.fmarket.repository.UserRepository;
@@ -16,7 +16,7 @@ public class CreateAccountService {
     UserRepository userRepository;
 
     @Transactional
-    public void create(RequestCreateAccountDTO request) {
+    public void create(CreateAccountRequestDTO request) {
         String email = request.email().trim();
         String profile = request.profile().trim();
 

@@ -60,7 +60,7 @@ Pastas vazias são mantidas no Git com um arquivo `.keep`. Ele pode ser removido
 ### dto
 - Objetos de entrada (Request) e saída (Response) dos endpoints.
 - Prefira `record`.
-- Nome: `<Entidade>Request` e `<Entidade>Response`.
+- Nome: `<Entidade>RequestDTO` e `<Entidade>ResponseDTO` (ex.: `LoginRequestDTO`, `CreateAccountResponseDTO`).
 - Podem conter anotações de validação (`jakarta.validation`).
 - Sem lógica de negócio.
 
