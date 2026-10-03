@@ -11,9 +11,12 @@ quarkus:
 
   hibernate-orm:
     database:
-      generation: update
+      generation: validate
     log:
       sql: false
+
+  flyway:
+    migrate-at-start: true
 
   http:
     port: 8080
@@ -34,9 +37,3 @@ quarkus:
       devservices:
         enabled: true
         image-name: postgres:16-alpine
-
-"%prod":
-  quarkus:
-    hibernate-orm:
-      database:
-        generation: validate
