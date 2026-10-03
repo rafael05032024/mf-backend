@@ -35,6 +35,15 @@ public class UserModel {
 
     public Boolean verified = false;
 
+    public Boolean highlighted;
+
+    @Column(name = "cover_photo")
+    public String coverPhoto;
+
+    public String tiktok;
+
+    public String instagram;
+
     @Column(nullable = false)
     public String password;
 
