@@ -12,6 +12,8 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobHttpHeaders;
+import com.azure.storage.blob.models.BlobProperties;
+import com.fmarket.dto.GetMidiaResponseDTO;
 import com.fmarket.dto.StoreImageRequestDTO;
 import com.fmarket.dto.StoreImageResponseDTO;
 import com.fmarket.dto.StoreMidiaRequestDTO;
@@ -72,5 +74,13 @@ public class AzureBlobStorageProvider implements BlobStorageProvider {
     @Override
     public StoreImageResponseDTO storeVideo(StoreImageRequestDTO request) {
         return new StoreImageResponseDTO(FAKE_BASE_URL + "/videos/" + request.fileName());
+    }
+
+    @Override
+    public GetMidiaResponseDTO getMidia(String blobName) {
+        BlobClient blobClient = containerClient.getBlobClient(blobName);
+        BlobProperties properties = blobClient.getProperties();
+
+        return new GetMidiaResponseDTO(blobClient.openInputStream(), properties.getContentType());
     }
 }
