@@ -1,19 +1,21 @@
 package com.fmarket.service;
 
-import com.fmarket.dto.StoreImageRequestDTO;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.UUID;
+
+import com.fmarket.dto.StoreMidiaRequestDTO;
 import com.fmarket.dto.UploadCoverPhotoRequestDTO;
 import com.fmarket.exception.InvalidImageException;
 import com.fmarket.exception.UserNotFoundException;
 import com.fmarket.model.UserModel;
 import com.fmarket.provider.BlobStorageProvider;
 import com.fmarket.repository.UserRepository;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.UUID;
 
 @ApplicationScoped
 public class UploadCoverPhotoService {
@@ -31,15 +33,22 @@ public class UploadCoverPhotoService {
     BlobStorageProvider blobStorageProvider;
 
     @Transactional
-    public void upload(Long userId, UploadCoverPhotoRequestDTO request) {
-        if (request.content() == null || request.content().length == 0) {
+    public void upload(Long userId, UploadCoverPhotoRequestDTO request) throws IOException {
+        if (request.file() == null) {
             throw new InvalidImageException("Nenhuma imagem enviada");
         }
-        if (request.content().length > MAX_SIZE_BYTES) {
+
+        if (request.file().uploadedFile() == null || request.file().size() == 0) {
+            throw new InvalidImageException("Nenhuma imagem enviada");
+        }
+
+        if (request.file().size() > MAX_SIZE_BYTES) {
             throw new InvalidImageException("A imagem deve ter no máximo 5 MB");
         }
-        String contentType = request.contentType() == null ? "" : request.contentType().toLowerCase();
+
+        String contentType = request.file().contentType() == null ? "" : request.file().contentType().toLowerCase();
         String extension = EXTENSIONS.get(contentType);
+
         if (extension == null) {
             throw new InvalidImageException("Formato inválido. Use JPEG, PNG ou WEBP");
         }
@@ -47,12 +56,11 @@ public class UploadCoverPhotoService {
         UserModel user = userRepository.findActiveById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário inexistente"));
 
-        String fileName = "cover/" + user.id + "/" + UUID.randomUUID() + "." + extension;
-        String url = blobStorageProvider
-                .storeImage(new StoreImageRequestDTO(fileName, contentType, request.content()))
-                .url();
+        String fileName = UUID.randomUUID() + "." + extension;
 
-        user.coverPhoto = url;
+        blobStorageProvider.store(new StoreMidiaRequestDTO(request.file(), fileName));
+
+        user.coverPhoto = fileName;
         user.updatedAt = LocalDateTime.now();
     }
 }

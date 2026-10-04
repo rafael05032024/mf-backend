@@ -1,5 +1,6 @@
 package com.fmarket.resource;
 
+import com.azure.core.annotation.PathParam;
 import com.fmarket.dto.GetMidiaResponseDTO;
 import com.fmarket.provider.BlobStorageProvider;
 
@@ -20,9 +21,10 @@ public class MidiaResource {
     BlobStorageProvider blobStorageProvider;
 
     @GET
-    public Response getMidia() {
+    @Path("/{q}")
+    public Response getMidia(@PathParam("q") String q) {
 
-        GetMidiaResponseDTO stream = blobStorageProvider.getMidia("profile/84.jpg");
+        GetMidiaResponseDTO stream = blobStorageProvider.getMidia(q);
 
         return Response.ok(stream.stream())
                 .type(stream.contentType())

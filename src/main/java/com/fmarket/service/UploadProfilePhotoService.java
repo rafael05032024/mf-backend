@@ -3,6 +3,7 @@ package com.fmarket.service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.UUID;
 
 import com.fmarket.dto.StoreMidiaRequestDTO;
 import com.fmarket.dto.UploadProfilePhotoRequestDTO;
@@ -56,12 +57,12 @@ public class UploadProfilePhotoService {
         UserModel user = userRepository.findActiveById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário inexistente"));
 
-        String fileName = "profile/" + user.id + "." + extension;
-        String url = blobStorageProvider
-                .store(new StoreMidiaRequestDTO(request.file(), fileName))
-                .url();
+        String fileName = UUID.randomUUID() + "." + extension;
 
-        user.thumb = url;
+        blobStorageProvider
+                .store(new StoreMidiaRequestDTO(request.file(), fileName));
+
+        user.thumb = fileName;
         user.updatedAt = LocalDateTime.now();
     }
 }
