@@ -30,6 +30,10 @@ public class UserRepository implements PanacheRepository<UserModel> {
         return find("id = ?1 and deletedAt is null", id).firstResultOptional();
     }
 
+    public Optional<UserModel> findByProfile(String profile) {
+        return find("lower(profile)", profile.toLowerCase()).firstResultOptional();
+    }
+
     public Optional<UserModel> findActiveByProfile(String profile) {
         return find("lower(profile) = ?1 and deletedAt is null", profile.toLowerCase()).firstResultOptional();
     }
