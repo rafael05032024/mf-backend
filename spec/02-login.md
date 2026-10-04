@@ -53,7 +53,7 @@ Autentica um usuário pelo e-mail e senha e devolve um token JWT.
 
 ## Configuração
 
-Em `application.yml`, sob `app.jwt`:
+Em `application.properties`, sob `app.jwt`:
 
 | Propriedade  | Valor                                  | Descrição                                       |
 |--------------|----------------------------------------|-------------------------------------------------|
