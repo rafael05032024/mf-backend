@@ -1,5 +1,10 @@
 package com.fmarket.resource;
 
+import java.io.IOException;
+
+import org.jboss.resteasy.reactive.RestForm;
+import org.jboss.resteasy.reactive.multipart.FileUpload;
+
 import com.fmarket.dto.UploadProfilePhotoRequestDTO;
 import com.fmarket.exception.InvalidImageException;
 import com.fmarket.security.Authenticated;
@@ -13,11 +18,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
-import org.jboss.resteasy.reactive.RestForm;
-import org.jboss.resteasy.reactive.multipart.FileUpload;
-
-import java.io.IOException;
-import java.nio.file.Files;
 
 @Path("/api/accounts/me/photo")
 @Authenticated
@@ -35,9 +35,8 @@ public class UploadProfilePhotoResource {
         }
         Long userId = Long.valueOf(security.getUserPrincipal().getName());
         try {
-            byte[] content = Files.readAllBytes(file.uploadedFile());
             uploadProfilePhotoService.upload(userId,
-                    new UploadProfilePhotoRequestDTO(file.contentType(), content));
+                    new UploadProfilePhotoRequestDTO(file));
         } catch (IOException e) {
             throw new InvalidImageException("Não foi possível ler a imagem enviada");
         }

@@ -1,4 +1,6 @@
 package com.fmarket.dto;
 
-public record UploadProfilePhotoRequestDTO(String contentType, byte[] content) {
+import org.jboss.resteasy.reactive.multipart.FileUpload;
+
+public record UploadProfilePhotoRequestDTO(FileUpload file) {
 }
