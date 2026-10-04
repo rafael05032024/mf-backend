@@ -4,6 +4,7 @@ import com.fmarket.model.UserModel;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 
+import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -27,5 +28,13 @@ public class UserRepository implements PanacheRepository<UserModel> {
 
     public Optional<UserModel> findActiveById(Long id) {
         return find("id = ?1 and deletedAt is null", id).firstResultOptional();
+    }
+
+    public List<UserModel> findVerifiedByProfile(String query) {
+        if (query == null || query.isBlank()) {
+            return list("verified = true and deletedAt is null");
+        }
+        return list("verified = true and deletedAt is null and lower(profile) like ?1",
+                "%" + query.trim().toLowerCase() + "%");
     }
 }
