@@ -1,0 +1,2 @@
+ALTER TABLE users
+    ADD COLUMN personal_name VARCHAR(255) DEFAULT NULL;

@@ -20,4 +20,12 @@ public class UserRepository implements PanacheRepository<UserModel> {
     public Optional<UserModel> findActiveByEmail(String email) {
         return find("lower(email) = ?1 and deletedAt is null", email.toLowerCase()).firstResultOptional();
     }
+
+    public boolean existsByProfileAndIdNot(String profile, Long id) {
+        return count("lower(profile) = ?1 and id <> ?2", profile.toLowerCase(), id) > 0;
+    }
+
+    public Optional<UserModel> findActiveById(Long id) {
+        return find("id = ?1 and deletedAt is null", id).firstResultOptional();
+    }
 }

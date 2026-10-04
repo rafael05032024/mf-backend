@@ -44,6 +44,11 @@ public class UserModel {
 
     public String instagram;
 
+    public String description;
+
+    @Column(name = "personal_name")
+    public String personalName;
+
     @Column(nullable = false)
     public String password;
 
