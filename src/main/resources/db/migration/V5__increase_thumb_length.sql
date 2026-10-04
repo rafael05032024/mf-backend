@@ -1,0 +1,2 @@
+ALTER TABLE users
+    ALTER COLUMN thumb TYPE VARCHAR(500);
