@@ -1,15 +1,15 @@
 package com.fmarket.service;
 
+import java.util.Map;
+import java.util.UUID;
+
 import com.fmarket.dto.ImageFileDTO;
-import com.fmarket.dto.StoreImageRequestDTO;
 import com.fmarket.dto.VerificationDocumentsRequestDTO;
 import com.fmarket.exception.InvalidImageException;
 import com.fmarket.provider.BlobStorageProvider;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import java.util.Map;
-import java.util.UUID;
 
 @ApplicationScoped
 public class VerificationDocumentsService {
@@ -50,7 +50,6 @@ public class VerificationDocumentsService {
     }
 
     private void store(String fileName, ImageFileDTO image) {
-        blobStorageProvider.storeImage(
-                new StoreImageRequestDTO(fileName, image.contentType().toLowerCase(), image.content()));
+        return;
     }
 }

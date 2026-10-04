@@ -14,8 +14,6 @@ import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobHttpHeaders;
 import com.azure.storage.blob.models.BlobProperties;
 import com.fmarket.dto.GetMidiaResponseDTO;
-import com.fmarket.dto.StoreImageRequestDTO;
-import com.fmarket.dto.StoreImageResponseDTO;
 import com.fmarket.dto.StoreMidiaRequestDTO;
 import com.fmarket.dto.StoreMidiaResponseDTO;
 
@@ -26,8 +24,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 @Startup
 @ApplicationScoped
 public class AzureBlobStorageProvider implements BlobStorageProvider {
-
-    private static final String FAKE_BASE_URL = "https://fake.blob.core.windows.net/fmarket";
 
     @ConfigProperty(name = "azure.storage.connection-string")
     String connectionString;
@@ -49,11 +45,6 @@ public class AzureBlobStorageProvider implements BlobStorageProvider {
     }
 
     @Override
-    public StoreImageResponseDTO storeImage(StoreImageRequestDTO request) {
-        return new StoreImageResponseDTO(FAKE_BASE_URL + "/images/" + request.fileName());
-    }
-
-    @Override
     public StoreMidiaResponseDTO store(StoreMidiaRequestDTO request) throws IOException {
         FileUpload file = request.file();
         InputStream is = Files.newInputStream(file.uploadedFile());
@@ -69,11 +60,6 @@ public class AzureBlobStorageProvider implements BlobStorageProvider {
                         .setContentType(file.contentType()));
 
         return new StoreMidiaResponseDTO(blobClient.getBlobUrl());
-    }
-
-    @Override
-    public StoreImageResponseDTO storeVideo(StoreImageRequestDTO request) {
-        return new StoreImageResponseDTO(FAKE_BASE_URL + "/videos/" + request.fileName());
     }
 
     @Override
