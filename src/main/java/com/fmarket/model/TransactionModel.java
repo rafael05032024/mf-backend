@@ -29,6 +29,9 @@ public class TransactionModel {
     @Column(nullable = false)
     public BigDecimal value;
 
+    @Column(length = 255)
+    public String description;
+
     @Column(name = "created_at")
     public LocalDateTime createdAt = LocalDateTime.now();
 

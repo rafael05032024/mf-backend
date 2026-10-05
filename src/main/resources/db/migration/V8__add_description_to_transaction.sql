@@ -1,0 +1,2 @@
+ALTER TABLE transaction
+    ADD COLUMN description VARCHAR(255) DEFAULT NULL;

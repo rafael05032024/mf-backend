@@ -104,10 +104,12 @@ public class CreateSignatureService {
                 .setScale(2, RoundingMode.HALF_UP);
 
         subscriberWallet.balance = subscriberWallet.balance.subtract(price);
-        registerTransaction(subscriberWallet.id, TransactionType.DEBIT, price, now);
+        registerTransaction(subscriberWallet.id, TransactionType.DEBIT, price,
+                "Assinatura do perfil @" + producer.profile, now);
 
         producerWallet.balance = producerWallet.balance.add(producerCredit);
-        registerTransaction(producerWallet.id, TransactionType.CREDIT, producerCredit, now);
+        registerTransaction(producerWallet.id, TransactionType.CREDIT, producerCredit,
+                "Assinatura de @" + subscriber.profile, now);
 
         SignatureModel signature = new SignatureModel();
         signature.subscriber = subscriberId;
@@ -130,11 +132,13 @@ public class CreateSignatureService {
                 .orElseThrow(() -> new IllegalStateException("Carteira inexistente para o usuário " + owner));
     }
 
-    private void registerTransaction(Long walletId, TransactionType type, BigDecimal value, LocalDateTime now) {
+    private void registerTransaction(Long walletId, TransactionType type, BigDecimal value,
+            String description, LocalDateTime now) {
         TransactionModel transaction = new TransactionModel();
         transaction.walletId = walletId;
         transaction.type = type;
         transaction.value = value;
+        transaction.description = description;
         transaction.createdAt = now;
         transaction.updatedAt = now;
         transactionRepository.persist(transaction);
