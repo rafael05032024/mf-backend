@@ -1,6 +1,7 @@
 package com.fmarket.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.fmarket.model.PostType;
 import com.fmarket.model.UserPost;
@@ -14,6 +15,10 @@ public class UserPostRepository implements PanacheRepository<UserPost> {
 
     public List<UserPost> findByOwner(Long owner) {
         return list("owner", Sort.descending("createdAt"), owner);
+    }
+
+    public Optional<UserPost> findByContent(String content) {
+        return find("content", content).firstResultOptional();
     }
 
     public long countPrivateByOwner(Long owner) {

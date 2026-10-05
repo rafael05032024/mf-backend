@@ -1,13 +1,15 @@
 package com.fmarket.resource;
 
-import com.azure.core.annotation.PathParam;
 import com.fmarket.dto.GetMidiaResponseDTO;
-import com.fmarket.provider.BlobStorageProvider;
+import com.fmarket.security.JwtTokenReader;
+import com.fmarket.service.GetMidiaService;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -17,14 +19,22 @@ import jakarta.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 public class MidiaResource {
 
+    private static final String TOKEN_COOKIE = "Token";
+
     @Inject
-    BlobStorageProvider blobStorageProvider;
+    GetMidiaService getMidiaService;
+
+    @Inject
+    JwtTokenReader tokenReader;
 
     @GET
     @Path("/{q}")
-    public Response getMidia(@PathParam("q") String q) {
+    public Response getMidia(@PathParam("q") String q,
+            @CookieParam(TOKEN_COOKIE) String token) {
+        // Autenticação opcional: sem cookie = anônimo; token presente porém inválido = 401.
+        Long userId = token == null ? null : tokenReader.readUserIdFromToken(token);
 
-        GetMidiaResponseDTO stream = blobStorageProvider.getMidia(q);
+        GetMidiaResponseDTO stream = getMidiaService.get(q, userId);
 
         return Response.ok(stream.stream())
                 .type(stream.contentType())
