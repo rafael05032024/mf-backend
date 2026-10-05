@@ -29,6 +29,7 @@ public class MidiaResource {
 
     @GET
     @Path("/{q}")
+    @Produces(MediaType.WILDCARD)
     public Response getMidia(@PathParam("q") String q,
             @CookieParam(TOKEN_COOKIE) String token) {
         // Autenticação opcional: sem cookie = anônimo; token presente porém inválido = 401.
@@ -38,9 +39,8 @@ public class MidiaResource {
 
         return Response.ok(stream.stream())
                 .type(stream.contentType())
-                .header(
-                        "Content-Disposition",
-                        "inline")
+                .header("Content-Disposition", "inline")
+                .header("X-Content-Type-Options", "nosniff")
                 .build();
     }
 }
