@@ -34,6 +34,9 @@ public class AsaasPaymentGatewayProvider implements PaymentGatewayProvider {
     @ConfigProperty(name = "asaas.access-token")
     String accessToken;
 
+    @ConfigProperty(name = "asaas.address-key")
+    String addressKey;
+
     @Inject
     ObjectMapper objectMapper;
 
@@ -44,7 +47,7 @@ public class AsaasPaymentGatewayProvider implements PaymentGatewayProvider {
     @Override
     public GeneratePixQrCodeResponseDTO generatePixQrCode(GeneratePixQrCodeRequestDTO request) {
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("addressKey", request.destination());
+        body.put("addressKey", addressKey);
         body.put("description", request.description());
         body.put("value", request.value());
         body.put("format", "ALL");
@@ -66,12 +69,18 @@ public class AsaasPaymentGatewayProvider implements PaymentGatewayProvider {
                         "Falha ao gerar QR Code Pix no gateway de pagamento (status " + response.statusCode() + ")");
             }
 
-            JsonNode encodedImage = objectMapper.readTree(response.body()).get("encodedImage");
+            JsonNode json = objectMapper.readTree(response.body());
+            JsonNode encodedImage = json.get("encodedImage");
             if (encodedImage == null || encodedImage.isNull()) {
                 throw new PaymentGatewayException("Resposta do gateway de pagamento sem imagem do QR Code");
             }
 
-            return new GeneratePixQrCodeResponseDTO(encodedImage.asText());
+            JsonNode id = json.get("id");
+            if (id == null || id.isNull()) {
+                throw new PaymentGatewayException("Resposta do gateway de pagamento sem id do QR Code");
+            }
+
+            return new GeneratePixQrCodeResponseDTO(encodedImage.asText(), id.asText());
         } catch (JsonProcessingException e) {
             throw new PaymentGatewayException("Resposta inválida do gateway de pagamento", e);
         } catch (IOException e) {
