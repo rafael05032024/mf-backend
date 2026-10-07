@@ -75,12 +75,17 @@ public class AsaasPaymentGatewayProvider implements PaymentGatewayProvider {
                 throw new PaymentGatewayException("Resposta do gateway de pagamento sem imagem do QR Code");
             }
 
+            JsonNode payload = json.get("payload");
+            if (payload == null || payload.isNull()) {
+                throw new PaymentGatewayException("Resposta do gateway de pagamento sem payload do QR Code");
+            }
+
             JsonNode id = json.get("id");
             if (id == null || id.isNull()) {
                 throw new PaymentGatewayException("Resposta do gateway de pagamento sem id do QR Code");
             }
 
-            return new GeneratePixQrCodeResponseDTO(encodedImage.asText(), id.asText());
+            return new GeneratePixQrCodeResponseDTO(encodedImage.asText(), payload.asText(), id.asText());
         } catch (JsonProcessingException e) {
             throw new PaymentGatewayException("Resposta inválida do gateway de pagamento", e);
         } catch (IOException e) {

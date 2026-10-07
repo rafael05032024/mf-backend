@@ -59,6 +59,6 @@ public class CreateRechargeService {
         recharge.createdAt = now;
         rechargeRequestRepository.persist(recharge);
 
-        return new CreateRechargeResponseDTO(recharge.id, qrCode.qrCodeImage());
+        return new CreateRechargeResponseDTO(recharge.id, qrCode.qrCodeImage(), qrCode.payload());
     }
 }
