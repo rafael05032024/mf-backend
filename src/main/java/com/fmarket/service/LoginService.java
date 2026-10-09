@@ -37,7 +37,7 @@ public class LoginService {
             throw new InvalidPasswordException("Senha inválida");
         }
 
-        return LoginResponseDTO.ofToken(generateToken(user));
+        return LoginResponseDTO.ofToken(generateToken(user), user.verified);
     }
 
     private String generateToken(UserModel user) {

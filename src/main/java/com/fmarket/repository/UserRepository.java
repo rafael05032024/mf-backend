@@ -45,4 +45,8 @@ public class UserRepository implements PanacheRepository<UserModel> {
         return list("verified = true and deletedAt is null and lower(profile) like ?1",
                 "%" + query.trim().toLowerCase() + "%");
     }
+
+    public boolean existsByThumbOrCoverPhoto(String fileName) {
+        return count("thumb = ?1 or coverPhoto = ?1", fileName) > 0;
+    }
 }

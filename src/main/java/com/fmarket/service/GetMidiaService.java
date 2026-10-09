@@ -9,6 +9,7 @@ import com.fmarket.model.UserPost;
 import com.fmarket.provider.BlobStorageProvider;
 import com.fmarket.repository.SignatureRepository;
 import com.fmarket.repository.UserPostRepository;
+import com.fmarket.repository.UserRepository;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -22,6 +23,9 @@ public class GetMidiaService {
     UserPostRepository userPostRepository;
 
     @Inject
+    UserRepository userRepository;
+
+    @Inject
     SignatureRepository signatureRepository;
 
     @Inject
@@ -29,6 +33,11 @@ public class GetMidiaService {
 
     /** @param userId id do usuário logado, ou {@code null} se anônimo */
     public GetMidiaResponseDTO get(String midia, Long userId) {
+        // thumb e cover_photo são públicos: não há post associado, busca direto no storage.
+        if (userRepository.existsByThumbOrCoverPhoto(midia)) {
+            return blobStorageProvider.getMidia(midia);
+        }
+
         UserPost post = userPostRepository.findByContent(midia)
                 .orElseThrow(() -> new MidiaNotFoundException("Mídia inexistente"));
 

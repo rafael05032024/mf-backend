@@ -16,7 +16,8 @@ public record GetProfileResponseDTO(
         @JsonProperty("cover_photo") String coverPhoto,
         List<PostDTO> posts,
         @JsonProperty("plan_value") BigDecimal planValue,
-        CountersDTO counters) {
+        CountersDTO counters,
+        boolean signed) {
 
     public record PostDTO(
             String content,
