@@ -31,4 +31,10 @@ public class LivenessRequestModel {
 
     @Column(name = "processed_at")
     public LocalDateTime processedAt;
+
+    @Column(name = "expire_at")
+    public LocalDateTime expireAt;
+
+    @Column(name = "url", length = 2048)
+    public String url;
 }

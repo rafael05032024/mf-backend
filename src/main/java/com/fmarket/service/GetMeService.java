@@ -33,6 +33,6 @@ public class GetMeService {
         long subscriptions = signatureRepository.countActiveBySubscriber(userId, LocalDateTime.now());
 
         return new GetMeResponseDTO(user.name, user.profile, user.thumb, wallet.balance, subscriptions,
-                user.verified);
+                user.verified, user.coverPhoto);
     }
 }

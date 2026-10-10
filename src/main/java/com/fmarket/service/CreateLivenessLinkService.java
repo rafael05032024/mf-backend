@@ -1,6 +1,8 @@
 package com.fmarket.service;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 import com.fmarket.dto.CreateLivenessLinkResponseDTO;
 import com.fmarket.dto.FraudPreventionExpectedDetailsDTO;
@@ -21,6 +23,8 @@ import jakarta.transaction.Transactional;
 @ApplicationScoped
 public class CreateLivenessLinkService {
 
+    private static final long LINK_VALIDITY_HOURS = 1;
+
     @Inject
     UserRepository userRepository;
 
@@ -34,6 +38,12 @@ public class CreateLivenessLinkService {
     public CreateLivenessLinkResponseDTO create(Long userId) {
         UserModel user = userRepository.findActiveById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário inexistente"));
+
+        LocalDateTime now = LocalDateTime.now();
+        Optional<LivenessRequestModel> active = livenessRequestRepository.findActiveByUser(userId, now);
+        if (active.isPresent()) {
+            return new CreateLivenessLinkResponseDTO(active.get().id, active.get().url);
+        }
 
         if (isBlank(user.document) || isBlank(user.personalName) || user.birthdate == null) {
             throw new IncompleteProfileException(
@@ -55,9 +65,11 @@ public class CreateLivenessLinkService {
         LivenessRequestModel liveness = new LivenessRequestModel();
         liveness.userId = userId;
         liveness.sessionId = session.sessionId();
+        liveness.url = session.verificationUrl();
+        liveness.expireAt = now.plusHours(LINK_VALIDITY_HOURS);
         livenessRequestRepository.persist(liveness);
 
-        return new CreateLivenessLinkResponseDTO(liveness.id, session.verificationUrl());
+        return new CreateLivenessLinkResponseDTO(liveness.id, liveness.url);
     }
 
     private static boolean isBlank(String value) {

@@ -1,0 +1,1 @@
+ALTER TABLE liveness_request ADD COLUMN url VARCHAR(2048);
