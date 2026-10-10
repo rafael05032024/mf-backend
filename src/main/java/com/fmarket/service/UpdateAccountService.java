@@ -1,9 +1,7 @@
 package com.fmarket.service;
 
 import com.fmarket.dto.UpdateAccountRequestDTO;
-import com.fmarket.dto.UpdateAccountResponseDTO;
 import com.fmarket.exception.BusinessConflictException;
-import com.fmarket.exception.NoDataToUpdateException;
 import com.fmarket.exception.UserNotFoundException;
 import com.fmarket.model.UserModel;
 import com.fmarket.repository.UserRepository;
@@ -20,18 +18,22 @@ public class UpdateAccountService {
     UserRepository userRepository;
 
     @Transactional
-    public UpdateAccountResponseDTO update(Long userId, UpdateAccountRequestDTO request) {
+    public void update(Long userId, UpdateAccountRequestDTO request) {
+        if (request == null) {
+            return;
+        }
+
         String realName = clean(request.realName());
         String document = clean(request.document());
         String name = clean(request.name());
         String profile = clean(request.profile());
         String description = clean(request.description());
-        String tiktok = clean(request.tiktok());
-        String instagram = clean(request.instagram());
+        String tiktok = request.tiktok() == null ? null : request.tiktok().trim();
+        String instagram = request.instagram() == null ? null : request.instagram().trim();
 
         if (request.birthdate() == null && realName == null && document == null && name == null
                 && profile == null && description == null && tiktok == null && instagram == null) {
-            throw new NoDataToUpdateException("Não há dados a serem atualizados");
+            return;
         }
 
         UserModel user = userRepository.findActiveById(userId)
@@ -50,8 +52,6 @@ public class UpdateAccountService {
         if (tiktok != null) user.tiktok = tiktok;
         if (instagram != null) user.instagram = instagram;
         user.updatedAt = LocalDateTime.now();
-
-        return new UpdateAccountResponseDTO("Dados atualizados com sucesso");
     }
 
     private String clean(String value) {

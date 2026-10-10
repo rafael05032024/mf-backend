@@ -1,7 +1,6 @@
 package com.fmarket.resource;
 
 import com.fmarket.dto.UpdateAccountRequestDTO;
-import com.fmarket.dto.UpdateAccountResponseDTO;
 import com.fmarket.security.Authenticated;
 import com.fmarket.service.UpdateAccountService;
 
@@ -13,6 +12,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 
 @Path("/api/accounts/me")
@@ -25,8 +25,9 @@ public class UpdateAccountResource {
     UpdateAccountService updateAccountService;
 
     @PATCH
-    public UpdateAccountResponseDTO update(@Context SecurityContext security, @Valid UpdateAccountRequestDTO request) {
+    public Response update(@Context SecurityContext security, @Valid UpdateAccountRequestDTO request) {
         Long userId = Long.valueOf(security.getUserPrincipal().getName());
-        return updateAccountService.update(userId, request);
+        updateAccountService.update(userId, request);
+        return Response.noContent().build();
     }
 }

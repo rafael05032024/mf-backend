@@ -24,6 +24,7 @@ services:
       DB_USERNAME: fmarket
       DB_PASSWORD: fmarket
       QUARKUS_PROFILE: prod
+      JAVA_TOOL_OPTIONS: -Djava.net.preferIPv4Stack=true
     ports:
       - "8080:8080"
     depends_on:
@@ -40,6 +41,7 @@ services:
       DB_URL: jdbc:postgresql://db:5432/fmarket
       DB_USERNAME: fmarket
       DB_PASSWORD: fmarket
+      JAVA_TOOL_OPTIONS: -Djava.net.preferIPv4Stack=true
     ports:
       - "8080:8080"
       - "5005:5005"
