@@ -1,9 +1,11 @@
 package com.fmarket.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.fmarket.dto.GetMeResponseDTO;
 import com.fmarket.exception.UserNotFoundException;
+import com.fmarket.repository.PlanRepository;
 import com.fmarket.repository.SignatureRepository;
 import com.fmarket.repository.UserRepository;
 import com.fmarket.repository.WalletRepository;
@@ -21,6 +23,9 @@ public class GetMeService {
     WalletRepository walletRepository;
 
     @Inject
+    PlanRepository planRepository;
+
+    @Inject
     SignatureRepository signatureRepository;
 
     public GetMeResponseDTO get(Long userId) {
@@ -32,7 +37,11 @@ public class GetMeService {
 
         long subscriptions = signatureRepository.countActiveBySubscriber(userId, LocalDateTime.now());
 
+        BigDecimal planValue = planRepository.findByProducer(userId)
+                .map(plan -> plan.value)
+                .orElse(BigDecimal.ZERO);
+
         return new GetMeResponseDTO(user.name, user.profile, user.thumb, wallet.balance, subscriptions,
-                user.verified, user.coverPhoto);
+                user.verified, user.coverPhoto, planValue);
     }
 }
