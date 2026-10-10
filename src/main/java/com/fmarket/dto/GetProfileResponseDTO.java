@@ -20,8 +20,10 @@ public record GetProfileResponseDTO(
         boolean signed) {
 
     public record PostDTO(
+            Long id,
             String content,
             String type,
+            String description,
             @JsonProperty("is_private") Boolean isPrivate) {
     }
 

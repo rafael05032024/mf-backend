@@ -38,7 +38,8 @@ public class GetProfileService {
                 .orElseThrow(() -> new UserNotFoundException("Perfil inexistente"));
 
         var posts = userPostRepository.findByOwner(user.id).stream()
-                .map(post -> new PostDTO(post.content, post.type.name().toLowerCase(), post.isPrivate))
+                .map(post -> new PostDTO(post.id, post.content, post.type.name().toLowerCase(), post.description,
+                        post.isPrivate))
                 .toList();
 
         BigDecimal planValue = planRepository.findByProducer(user.id)
