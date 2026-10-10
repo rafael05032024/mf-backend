@@ -14,9 +14,10 @@ Permite criar uma conta de usuário.
 | `email`    | string | obrigatório, formato de e-mail |
 | `profile`  | string | obrigatório (não vazio)        |
 | `password` | string | obrigatório (não vazio)        |
+| `code`     | string | obrigatório, código de verificação enviado por e-mail |
 
 ```json
-{"name": "Ana", "email": "ana@x.com", "profile": "ana", "password": "secret"}
+{"name": "Ana", "email": "ana@x.com", "profile": "ana", "password": "secret", "code": "482071"}
 ```
 
 ### Respostas
@@ -25,16 +26,19 @@ Permite criar uma conta de usuário.
 |--------|-----------------------------------------------------------------|----------------------------------------|
 | 204    | Conta criada                                                    | sem corpo                              |
 | 400    | Campo ausente/vazio ou e-mail com formato inválido              | erro padrão do Bean Validation         |
+| 404    | Não há registro de verificação para o e-mail                    | `CreateAccountResponseDTO` (`message`) |
+| 400    | Código de verificação expirado ou inválido                      | `CreateAccountResponseDTO` (`message`) |
 | 409    | E-mail ou profile já cadastrado                                 | `CreateAccountResponseDTO` (`message`) |
 
 ## Regras de negócio
 
 1. Todos os campos são obrigatórios e o e-mail deve ter formato válido (`@Valid` no recurso).
-2. `name`, `email` e `profile` são salvos sem espaços nas pontas.
-3. Não pode existir outro usuário com o mesmo e-mail. Comparação sem diferenciar maiúsculas de minúsculas.
-4. Não pode existir outro usuário com o mesmo profile. Comparação sem diferenciar maiúsculas de minúsculas.
-5. A senha é gravada como hash BCrypt (`BcryptUtil`), nunca em texto puro.
-6. O usuário é inserido na tabela `users` (`verified = false`; datas preenchidas pelo banco).
+2. Antes de qualquer outra checagem, busca em `registration_request` o último registro do e-mail (`created_at desc`, sem diferenciar maiúsculas). Se não houver, retorna 404. Se `expire_at` já passou, retorna 400 (expirado). Se `code` difere do código do banco, retorna 400 (inválido).
+3. `name`, `email` e `profile` são salvos sem espaços nas pontas.
+4. Não pode existir outro usuário com o mesmo e-mail. Comparação sem diferenciar maiúsculas de minúsculas.
+5. Não pode existir outro usuário com o mesmo profile. Comparação sem diferenciar maiúsculas de minúsculas.
+6. A senha é gravada como hash BCrypt (`BcryptUtil`), nunca em texto puro.
+7. O usuário é inserido na tabela `users` (`verified = false`; datas preenchidas pelo banco).
 
 As checagens de unicidade consideram também usuários com `deleted_at` preenchido.
 
