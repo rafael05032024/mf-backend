@@ -1,6 +1,7 @@
 package com.fmarket.service;
 
 import com.fmarket.dto.UpdateAccountRequestDTO;
+import com.fmarket.exception.ActionForbiddenException;
 import com.fmarket.exception.BusinessConflictException;
 import com.fmarket.exception.UserNotFoundException;
 import com.fmarket.model.UserModel;
@@ -18,7 +19,11 @@ public class UpdateAccountService {
     UserRepository userRepository;
 
     @Transactional
-    public void update(Long userId, UpdateAccountRequestDTO request) {
+    public void update(Long userId, Long accountId, UpdateAccountRequestDTO request) {
+        if (!userId.equals(accountId)) {
+            throw new ActionForbiddenException("Ação não pode ser realizada");
+        }
+
         if (request == null) {
             return;
         }
@@ -41,6 +46,10 @@ public class UpdateAccountService {
 
         if (profile != null && userRepository.existsByProfileAndIdNot(profile, user.id)) {
             throw new BusinessConflictException("Já existe um usuário com o mesmo perfil");
+        }
+
+        if (document != null && userRepository.existsByDocumentAndIdNot(document, user.id)) {
+            throw new BusinessConflictException("CPF não pode ser mais utilizado");
         }
 
         if (realName != null) user.personalName = realName;

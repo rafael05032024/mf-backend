@@ -26,6 +26,10 @@ public class UserRepository implements PanacheRepository<UserModel> {
         return count("lower(profile) = ?1 and id <> ?2", profile.toLowerCase(), id) > 0;
     }
 
+    public boolean existsByDocumentAndIdNot(String document, Long id) {
+        return count("document = ?1 and id <> ?2", document, id) > 0;
+    }
+
     public Optional<UserModel> findActiveById(Long id) {
         return find("id = ?1 and deletedAt is null", id).firstResultOptional();
     }

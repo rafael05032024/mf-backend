@@ -27,7 +27,7 @@ public class UpdateAccountResource {
     @PATCH
     public Response update(@Context SecurityContext security, @Valid UpdateAccountRequestDTO request) {
         Long userId = Long.valueOf(security.getUserPrincipal().getName());
-        updateAccountService.update(userId, request);
+        updateAccountService.update(userId, userId, request);
         return Response.noContent().build();
     }
 }
