@@ -21,6 +21,10 @@ public class UserPostRepository implements PanacheRepository<UserPost> {
         return find("content", content).firstResultOptional();
     }
 
+    public long countByOwner(Long owner) {
+        return count("owner", owner);
+    }
+
     public long countPrivateByOwner(Long owner) {
         return count("owner = ?1 and isPrivate = true", owner);
     }

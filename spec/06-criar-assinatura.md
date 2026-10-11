@@ -33,7 +33,8 @@ O id do assinante vem do `sub` do token (`SecurityContext`).
 | 401    | Token ausente ou inválido                                     | tratado por `JwtAuthenticationFilter` |
 | 402    | Saldo do assinante menor que o valor do plano: `Saldo insuficiente` | `CreateAccountResponseDTO` (`message`) |
 | 403    | Produtor com `deleted_at` preenchido: `Usuário inativo`       | `CreateAccountResponseDTO` (`message`) |
-| 403    | Produtor não verificado: `Produtor não é verificado`          | `CreateAccountResponseDTO` (`message`) |
+| 403    | Produtor com `level` menor que 2: `Publisher não é produtor de conteúdo` | `CreateAccountResponseDTO` (`message`) |
+| 409    | Produtor `level` 2 com 30 assinaturas ativas: `A assinatura não pode ser efetivada` | `CreateAccountResponseDTO` (`message`) |
 | 404    | Assinante inexistente/inativo: `Usuário inexistente`          | `LoginResponseDTO` (`message`)        |
 | 404    | Produtor inexistente: `Produtor inexistente`                  | `LoginResponseDTO` (`message`)        |
 | 404    | Produtor sem plano: `Produtor não possui plano`               | `LoginResponseDTO` (`message`)        |
@@ -47,7 +48,7 @@ Avaliadas nesta ordem, a primeira que falhar encerra a requisição:
 2. O produtor deve existir, buscado pelo `profile` sem diferenciar maiúsculas de minúsculas (`UserRepository.findByProfile`, que inclui usuários inativos), senão `Produtor inexistente` (404).
 3. O assinante não pode ser o próprio produtor (mesmo id), senão `Você não pode assinar a si mesmo` (400).
 4. O produtor deve estar ativo (`deleted_at` nulo), senão `Usuário inativo` (403).
-5. O produtor deve estar verificado (`verified = true`), senão `Produtor não é verificado` (403). Um produtor inativo e não verificado recebe o erro de inativo.
+5. O produtor deve ter `level` >= 2, senão `Publisher não é produtor de conteúdo` (403). Um produtor inativo com level baixo recebe o erro de inativo. Produtor `level` 2 com 30 ou mais assinaturas ativas (`expire_at` no futuro, `SignatureRepository.countActiveByProducer`) recebe `A assinatura não pode ser efetivada` (409), checado após travar as carteiras; `level` 3 não tem limite.
 6. O produtor deve ter plano (`PlanRepository.findByProducer`), senão `Produtor não possui plano` (404).
 7. As carteiras do assinante e do produtor são travadas (`WalletRepository.findByOwnerForUpdate`, lock pessimista), sempre na ordem do menor id de usuário, para evitar deadlock. O lock também serializa requisições concorrentes do mesmo assinante.
 8. Não pode existir assinatura do assinante para o produtor com `expire_at` no futuro (`SignatureRepository.existsActive`), senão `Você já possui uma assinatura vigente para este produtor` (409). Assinaturas expiradas não bloqueiam uma nova.

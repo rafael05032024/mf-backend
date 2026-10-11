@@ -1,6 +1,6 @@
 # 03 - Criação de post
 
-Permite a um publicador verificado criar um post com uma mídia (foto ou vídeo). A mídia vai para o Azure Blob Storage.
+Permite a um usuário com nível suficiente criar um post com uma mídia (foto ou vídeo). A mídia vai para o Azure Blob Storage.
 
 ## Endpoint
 
@@ -23,7 +23,7 @@ O id do usuário vem do `sub` do token (`SecurityContext`).
 | 204    | Post criado                                                                              | sem corpo                                |
 | 400    | Mídia ausente/vazia, formato inválido, acima do tamanho, `is_private` inválido, descrição longa | `UpdateAccountResponseDTO` (`message`) |
 | 401    | Token ausente ou inválido                                                                | tratado por `JwtAuthenticationFilter`    |
-| 403    | Usuário com `verified = false`                                                           | `CreateAccountResponseDTO` (`message`)   |
+| 403    | Nível 1, ou nível 2 com 15 posts ou mais                                                 | `CreateAccountResponseDTO` (`message`)   |
 | 404    | Usuário inexistente ou com `deleted_at` preenchido                                       | `LoginResponseDTO` (`message`)           |
 
 ## Regras de negócio
@@ -40,7 +40,7 @@ O id do usuário vem do `sub` do token (`SecurityContext`).
 
    O limite de vídeo acompanha `quarkus.http.limits.max-body-size` (20M).
 5. O usuário deve existir e estar ativo (`UserRepository.findActiveById`), senão `Usuário inexistente` (404).
-6. O usuário deve ter `verified = true`, senão erro 403: `Você não pode postar conteúdo porque não possui uma conta de publicador verificada`.
+6. Limite por `level` do usuário: nível 3 não tem limite; nível 2 pode ter até 15 posts (com 15 ou mais, erro 403: `Você já excedeu o número máximo de posts que pode fazer`); nível 1 não pode postar (403: `Seu nível não permite criar posts`).
 7. Só depois das validações o arquivo é enviado ao Azure (`BlobStorageProvider.store`) com o nome `<uuid>.<extensão>`.
 8. O post é gravado em `user_post` com `owner` = id do usuário, `content` = nome do arquivo no Azure, `type` conforme a regra 4, `is_private` e `description`.
 

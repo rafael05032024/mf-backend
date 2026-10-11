@@ -42,6 +42,6 @@ public class GetMeService {
                 .orElse(BigDecimal.ZERO);
 
         return new GetMeResponseDTO(user.name, user.profile, user.thumb, wallet.balance, subscriptions,
-                user.verified, user.coverPhoto, planValue);
+                user.verified, user.coverPhoto, planValue, user.level);
     }
 }

@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 import com.fmarket.dto.CreatePostRequestDTO;
 import com.fmarket.dto.CreatePostResponseDTO;
 import com.fmarket.dto.StoreMidiaRequestDTO;
+import com.fmarket.exception.ActionForbiddenException;
 import com.fmarket.exception.InvalidImageException;
-import com.fmarket.exception.UnverifiedPublisherException;
 import com.fmarket.exception.UserNotFoundException;
 import com.fmarket.model.UserModel;
 import com.fmarket.model.UserPost;
@@ -21,6 +21,10 @@ import jakarta.transaction.Transactional;
 
 @ApplicationScoped
 public class CreatePostService {
+
+    private static final int LEVEL_LIMITED = 2;
+    private static final int LEVEL_UNLIMITED = 3;
+    private static final long LEVEL_LIMITED_MAX_POSTS = 15;
 
     @Inject
     UserRepository userRepository;
@@ -43,10 +47,7 @@ public class CreatePostService {
         UserModel user = userRepository.findActiveById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário inexistente"));
 
-        if (!Boolean.TRUE.equals(user.verified)) {
-            throw new UnverifiedPublisherException(
-                    "Você não pode postar conteúdo porque não possui uma conta de publicador verificada");
-        }
+        validatePostLimit(user);
 
         String fileName = midia.fileName();
 
@@ -63,5 +64,20 @@ public class CreatePostService {
         userPostRepository.persist(post);
 
         return new CreatePostResponseDTO(post.id, midia.type().name(), fileName, isPrivate, description);
+    }
+
+    private void validatePostLimit(UserModel user) {
+        int level = user.level == null ? 1 : user.level;
+
+        if (level >= LEVEL_UNLIMITED) {
+            return;
+        }
+        if (level < LEVEL_LIMITED) {
+            throw new ActionForbiddenException("Seu nível não permite criar posts");
+        }
+        if (userPostRepository.countByOwner(user.id) >= LEVEL_LIMITED_MAX_POSTS) {
+            throw new ActionForbiddenException(
+                    "Você já excedeu o número máximo de posts que pode fazer");
+        }
     }
 }

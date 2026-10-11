@@ -34,6 +34,9 @@ import jakarta.transaction.Transactional;
 public class CreateSignatureService {
 
     private static final int SIGNATURE_DURATION_DAYS = 30;
+    private static final int PRODUCER_MIN_LEVEL = 2;
+    private static final int PRODUCER_LIMITED_LEVEL = 2;
+    private static final long PRODUCER_LIMITED_MAX_SIGNATURES = 30;
     // Comissão da plataforma sobre o valor do plano (valores em footcoins, 1 R$ = 5 ft).
     private static final BigDecimal PLATFORM_FEE_RATE = new BigDecimal("0.10");
 
@@ -71,8 +74,8 @@ public class CreateSignatureService {
             throw new InactiveUserException("Usuário inativo");
         }
 
-        if (!Boolean.TRUE.equals(producer.verified)) {
-            throw new UnverifiedPublisherException("Produtor não é verificado");
+        if (producer.level == null || producer.level < PRODUCER_MIN_LEVEL) {
+            throw new UnverifiedPublisherException("Publisher não é produtor de conteúdo");
         }
 
         PlanModel plan = planRepository.findByProducer(producer.id)
@@ -93,6 +96,11 @@ public class CreateSignatureService {
         LocalDateTime now = LocalDateTime.now();
         if (signatureRepository.existsActive(subscriberId, producer.id, now)) {
             throw new BusinessConflictException("Você já possui uma assinatura vigente para este produtor");
+        }
+
+        if (producer.level == PRODUCER_LIMITED_LEVEL
+                && signatureRepository.countActiveByProducer(producer.id, now) >= PRODUCER_LIMITED_MAX_SIGNATURES) {
+            throw new BusinessConflictException("A assinatura não pode ser efetivada");
         }
 
         BigDecimal price = plan.value;

@@ -15,4 +15,8 @@ public class LivenessRequestRepository implements PanacheRepository<LivenessRequ
         return find("userId = ?1 and processedAt is null and expireAt > ?2 order by expireAt desc", userId, now)
                 .firstResultOptional();
     }
+
+    public long deleteUnprocessedByUser(Long userId) {
+        return delete("userId = ?1 and processedAt is null", userId);
+    }
 }

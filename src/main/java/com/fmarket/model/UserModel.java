@@ -37,6 +37,9 @@ public class UserModel {
 
     public Boolean highlighted;
 
+    @Column(nullable = false)
+    public Integer level = 1;
+
     @Column(name = "cover_photo")
     public String coverPhoto;
 
