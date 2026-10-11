@@ -1,0 +1,4 @@
+ALTER TABLE notification
+    ADD COLUMN icon  VARCHAR(255),
+    ADD COLUMN type  INTEGER,
+    ADD COLUMN title VARCHAR(255);

@@ -9,7 +9,10 @@ public record ListNotificationsResponseDTO(List<NotificationDTO> notifications) 
 
     public record NotificationDTO(
             Long id,
+            String title,
             String text,
+            String icon,
+            Integer type,
             @JsonProperty("created_at") LocalDateTime createdAt,
             @JsonProperty("readed_at") LocalDateTime readedAt) {
     }

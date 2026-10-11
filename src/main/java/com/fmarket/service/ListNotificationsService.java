@@ -23,7 +23,7 @@ public class ListNotificationsService {
                 .orElseThrow(() -> new UserNotFoundException("Usuário inexistente"));
 
         var notifications = notificationRepository.findByUserId(userId).stream()
-                .map(n -> new NotificationDTO(n.id, n.text, n.createdAt, n.readedAt))
+                .map(n -> new NotificationDTO(n.id, n.title, n.text, n.icon, n.type, n.createdAt, n.readedAt))
                 .toList();
 
         return new ListNotificationsResponseDTO(notifications);

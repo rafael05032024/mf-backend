@@ -18,6 +18,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
+
 @ApplicationScoped
 public class SendVerificationCodeService {
 
@@ -28,6 +31,8 @@ public class SendVerificationCodeService {
     private static final int EXPIRATION_MINUTES = 10;
     private static final DateTimeFormatter EXPIRATION_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
+    private static final Logger LOG = Logger.getLogger(SendVerificationCodeService.class);
+
     private final SecureRandom random = new SecureRandom();
 
     private String template;
@@ -37,6 +42,9 @@ public class SendVerificationCodeService {
 
     @Inject
     EmailProvider emailProvider;
+
+    @ConfigProperty(name = "email.send.enabled")
+    boolean emailSendEnabled;
 
     @PostConstruct
     void loadTemplate() {
@@ -65,6 +73,12 @@ public class SendVerificationCodeService {
         registration.code = code;
         registration.expireAt = expireAt;
         registrationRequestRepository.persist(registration);
+
+        if (!emailSendEnabled) {
+            LOG.infof("Envio de e-mail desabilitado (email.send.enabled=false). Código para %s: %s",
+                    request.email(), code);
+            return;
+        }
 
         emailProvider.sendEmail(request.email(), SUBJECT, render(request.name(), code, expireAt));
     }

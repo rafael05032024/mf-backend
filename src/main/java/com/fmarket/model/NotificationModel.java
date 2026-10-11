@@ -23,6 +23,12 @@ public class NotificationModel {
     @Column(nullable = false)
     public String text;
 
+    public String icon;
+
+    public Integer type;
+
+    public String title;
+
     @Column(name = "created_at")
     public LocalDateTime createdAt = LocalDateTime.now();
 
