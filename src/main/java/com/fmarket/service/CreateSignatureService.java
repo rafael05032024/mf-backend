@@ -14,6 +14,7 @@ import com.fmarket.exception.InsufficientBalanceException;
 import com.fmarket.exception.SelfSignatureException;
 import com.fmarket.exception.UnverifiedPublisherException;
 import com.fmarket.exception.UserNotFoundException;
+import com.fmarket.model.EarningModel;
 import com.fmarket.model.NotificationModel;
 import com.fmarket.model.PlanModel;
 import com.fmarket.model.SignatureModel;
@@ -21,6 +22,7 @@ import com.fmarket.model.TransactionModel;
 import com.fmarket.model.TransactionType;
 import com.fmarket.model.UserModel;
 import com.fmarket.model.WalletModel;
+import com.fmarket.repository.EarningRepository;
 import com.fmarket.repository.NotificationRepository;
 import com.fmarket.repository.PlanRepository;
 import com.fmarket.repository.SignatureRepository;
@@ -65,6 +67,9 @@ public class CreateSignatureService {
 
     @Inject
     TransactionRepository transactionRepository;
+
+    @Inject
+    EarningRepository earningRepository;
 
     @Inject
     NotificationRepository notificationRepository;
@@ -125,8 +130,8 @@ public class CreateSignatureService {
             throw new InsufficientBalanceException("Saldo insuficiente");
         }
 
-        BigDecimal producerCredit = price.subtract(price.multiply(PLATFORM_FEE_RATE))
-                .setScale(2, RoundingMode.HALF_UP);
+        BigDecimal platformEarning = price.multiply(PLATFORM_FEE_RATE).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal producerCredit = price.subtract(platformEarning).setScale(2, RoundingMode.HALF_UP);
 
         subscriberWallet.balance = subscriberWallet.balance.subtract(price);
         registerTransaction(subscriberWallet.id, TransactionType.DEBIT, price,
@@ -143,6 +148,8 @@ public class CreateSignatureService {
         signature.updatedAt = signature.createdAt;
         signature.expireAt = signature.createdAt.plusDays(SIGNATURE_DURATION_DAYS);
         signatureRepository.persist(signature);
+
+        registerEarning(signature.id, platformEarning, producerCredit, now);
 
         NotificationModel subscriberNotification = notify(subscriberId, SUBSCRIBER_ICON,
                 "Assinatura de @" + producer.profile + " confirmada por " + SIGNATURE_DURATION_DAYS + " dias", now);
@@ -171,6 +178,17 @@ public class CreateSignatureService {
         transaction.createdAt = now;
         transaction.updatedAt = now;
         transactionRepository.persist(transaction);
+    }
+
+    private void registerEarning(Long signatureId, BigDecimal platformValue, BigDecimal producerValue,
+            LocalDateTime now) {
+        EarningModel earning = new EarningModel();
+        earning.subscriptionId = signatureId;
+        earning.valuePlatform = platformValue;
+        earning.valueProducer = producerValue;
+        earning.createdAt = now;
+        earning.updatedAt = now;
+        earningRepository.persist(earning);
     }
 
     private NotificationModel notify(Long userId, String icon, String text, LocalDateTime now) {
