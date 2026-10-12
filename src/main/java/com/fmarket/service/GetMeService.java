@@ -41,7 +41,7 @@ public class GetMeService {
                 .map(plan -> plan.value)
                 .orElse(BigDecimal.ZERO);
 
-        return new GetMeResponseDTO(user.name, user.profile, user.thumb, wallet.balance, subscriptions,
+        return new GetMeResponseDTO(user.id, user.name, user.profile, user.thumb, wallet.balance, subscriptions,
                 user.verified, user.coverPhoto, planValue, user.level);
     }
 }
