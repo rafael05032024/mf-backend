@@ -55,6 +55,8 @@ public class UserModel {
     @Column(nullable = false)
     public String password;
 
+    public String ip;
+
     @Column(name = "created_at", insertable = false, updatable = false)
     public LocalDateTime createdAt;
 

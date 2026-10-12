@@ -4,12 +4,14 @@ import com.fmarket.dto.LoginRequestDTO;
 import com.fmarket.dto.LoginResponseDTO;
 import com.fmarket.service.LoginService;
 
+import io.vertx.core.http.HttpServerRequest;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
@@ -28,6 +30,9 @@ public class LoginResource {
     @Inject
     LoginService loginService;
 
+    @Inject
+    ClientIpResolver clientIpResolver;
+
     @ConfigProperty(name = "app.jwt.expiration")
     Duration expiration;
 
@@ -35,8 +40,8 @@ public class LoginResource {
     boolean cookieSecure;
 
     @POST
-    public Response login(@Valid LoginRequestDTO request) {
-        LoginResponseDTO body = loginService.login(request);
+    public Response login(@Valid LoginRequestDTO request, @Context HttpServerRequest httpRequest) {
+        LoginResponseDTO body = loginService.login(request, clientIpResolver.resolve(httpRequest));
 
         NewCookie cookie = new NewCookie.Builder(TOKEN_COOKIE)
                 .value(body.token())

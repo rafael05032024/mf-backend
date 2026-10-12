@@ -1,6 +1,7 @@
 package com.fmarket.service;
 
 import com.fmarket.dto.CreateAccountRequestDTO;
+import com.fmarket.exception.ActionForbiddenException;
 import com.fmarket.exception.BusinessConflictException;
 import com.fmarket.exception.VerificationCodeException;
 import com.fmarket.model.RegistrationRequestModel;
@@ -31,7 +32,11 @@ public class CreateAccountService {
     RegistrationRequestRepository registrationRequestRepository;
 
     @Transactional
-    public void create(CreateAccountRequestDTO request) {
+    public void create(CreateAccountRequestDTO request, String ip) {
+        if (ip != null && userRepository.existsBlockedByIp(ip)) {
+            throw new ActionForbiddenException("Cadastro negado");
+        }
+
         String email = request.email().trim();
         String profile = request.profile().trim();
 
@@ -49,6 +54,7 @@ public class CreateAccountService {
         user.email = email;
         user.profile = profile;
         user.password = BcryptUtil.bcryptHash(request.password());
+        user.ip = ip;
         userRepository.persist(user);
 
         WalletModel wallet = new WalletModel();

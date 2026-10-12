@@ -2,6 +2,7 @@ package com.fmarket.service;
 
 import com.fmarket.dto.LoginRequestDTO;
 import com.fmarket.dto.LoginResponseDTO;
+import com.fmarket.exception.ActionForbiddenException;
 import com.fmarket.exception.InvalidPasswordException;
 import com.fmarket.exception.UserNotFoundException;
 import com.fmarket.model.UserModel;
@@ -10,6 +11,7 @@ import io.quarkus.elytron.security.common.BcryptUtil;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.time.Duration;
@@ -29,13 +31,20 @@ public class LoginService {
     @ConfigProperty(name = "app.jwt.expiration")
     Duration expiration;
 
-    public LoginResponseDTO login(LoginRequestDTO request) {
-        UserModel user = userRepository.findActiveByEmail(request.email().trim())
+    @Transactional
+    public LoginResponseDTO login(LoginRequestDTO request, String ip) {
+        UserModel user = userRepository.findByEmail(request.email().trim())
                 .orElseThrow(() -> new UserNotFoundException("Usuário inexistente"));
 
         if (!BcryptUtil.matches(request.password(), user.password)) {
             throw new InvalidPasswordException("Senha inválida");
         }
+
+        if (user.deletedAt != null) {
+            throw new ActionForbiddenException("Usuário bloqueado");
+        }
+
+        user.ip = ip;
 
         return LoginResponseDTO.ofToken(generateToken(user));
     }

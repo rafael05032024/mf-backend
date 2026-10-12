@@ -14,6 +14,14 @@ public class UserRepository implements PanacheRepository<UserModel> {
         return count("lower(email)", email.toLowerCase()) > 0;
     }
 
+    public Optional<UserModel> findByEmail(String email) {
+        return find("lower(email)", email.toLowerCase()).firstResultOptional();
+    }
+
+    public boolean existsBlockedByIp(String ip) {
+        return count("ip = ?1 and deletedAt is not null", ip) > 0;
+    }
+
     public boolean existsByProfile(String profile) {
         return count("lower(profile)", profile.toLowerCase()) > 0;
     }
