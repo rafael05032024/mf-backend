@@ -14,7 +14,7 @@ public class ListProfileService {
     UserRepository userRepository;
 
     public List<ListProfileResponseDTO> list(String query) {
-        return userRepository.findVerifiedByProfile(query).stream()
+        return userRepository.findByLevelAboveOneAndProfile(query).stream()
                 .map(user -> new ListProfileResponseDTO(user.profile, user.thumb, user.coverPhoto, user.verified,
                         Boolean.TRUE.equals(user.highlighted)))
                 .toList();
