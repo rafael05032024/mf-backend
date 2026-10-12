@@ -7,6 +7,6 @@ public record CreateAccountRequestDTO(
         @NotBlank String name,
         @NotBlank @Email String email,
         @NotBlank String profile,
-        @NotBlank String password,
+        @NotBlank @StrongPassword String password,
         @NotBlank String code) {
 }
