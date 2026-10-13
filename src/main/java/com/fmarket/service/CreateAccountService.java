@@ -1,12 +1,15 @@
 package com.fmarket.service;
 
 import com.fmarket.dto.CreateAccountRequestDTO;
+import com.fmarket.dto.SendMessageRequestDTO;
 import com.fmarket.exception.ActionForbiddenException;
 import com.fmarket.exception.BusinessConflictException;
 import com.fmarket.exception.VerificationCodeException;
+import com.fmarket.model.NotificationModel;
 import com.fmarket.model.RegistrationRequestModel;
 import com.fmarket.model.UserModel;
 import com.fmarket.model.WalletModel;
+import com.fmarket.repository.NotificationRepository;
 import com.fmarket.repository.RegistrationRequestRepository;
 import com.fmarket.repository.UserRepository;
 import com.fmarket.repository.WalletRepository;
@@ -22,6 +25,12 @@ import java.time.LocalDateTime;
 @ApplicationScoped
 public class CreateAccountService {
 
+    private static final String WELCOME_TITLE = "Você chegou!! 🎉";
+    private static final String WELCOME_TEXT = "Seja muito bem-vindo(a), %s! Estamos muito felizes com a sua chegada. Conte conosco nessa jornada!";
+    private static final String WELCOME_ICON = "SmilePlus";
+    private static final int WELCOME_TYPE = 1;
+    private static final String SUPPORT_WELCOME_TEXT = "Seja muito bem-vindo(a)! Este é o nosso canal de suporte. Fique à vontade para compartilhar suas dúvidas, sugestões ou reclamações. Estamos aqui para ouvir você e ajudar no que for preciso!";
+
     @Inject
     UserRepository userRepository;
 
@@ -30,6 +39,12 @@ public class CreateAccountService {
 
     @Inject
     RegistrationRequestRepository registrationRequestRepository;
+
+    @Inject
+    NotificationRepository notificationRepository;
+
+    @Inject
+    SendMessageService sendMessageService;
 
     @Transactional
     public void create(CreateAccountRequestDTO request, String ip) {
@@ -61,6 +76,24 @@ public class CreateAccountService {
         wallet.owner = user.id;
         wallet.balance = BigDecimal.ZERO;
         walletRepository.persist(wallet);
+
+        createWelcomeNotification(user);
+        createSupportWelcomeMessage(user);
+    }
+
+    private void createWelcomeNotification(UserModel user) {
+        NotificationModel notification = new NotificationModel();
+        notification.userId = user.id;
+        notification.title = WELCOME_TITLE;
+        notification.text = WELCOME_TEXT.formatted(user.profile);
+        notification.icon = WELCOME_ICON;
+        notification.type = WELCOME_TYPE;
+        notificationRepository.persist(notification);
+    }
+
+    // Remetente nulo = suporte; o evento new_message é publicado após o commit.
+    private void createSupportWelcomeMessage(UserModel user) {
+        sendMessageService.send(null, new SendMessageRequestDTO(null, user.id, SUPPORT_WELCOME_TEXT));
     }
 
     private void validateVerificationCode(String email, String code) {

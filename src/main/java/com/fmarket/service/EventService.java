@@ -14,7 +14,7 @@ import jakarta.transaction.Transactional;
 @ApplicationScoped
 public class EventService {
 
-    private static final String PROFILE_PARAM = "id";
+    private static final String USER_ID_PARAM = "id";
 
     @Inject
     JwtTokenReader tokenReader;
@@ -25,24 +25,23 @@ public class EventService {
     @Inject
     OpenConnections connections;
 
-    /** Garante que o token pertence ao dono do profile informado; caso contrário lança {@link InvalidTokenException}. */
+    /** Garante que o token pertence ao usuário informado; caso contrário lança {@link InvalidTokenException}. */
     @Transactional
-    public void authorize(String profile, String token) {
-        Long userId = tokenReader.readUserIdFromToken(token);
+    public void authorize(String id, String token) {
+        Long tokenUserId = tokenReader.readUserIdFromToken(token);
 
-        boolean owner = userRepository.findActiveById(userId)
-                .map(user -> user.profile.equalsIgnoreCase(profile))
-                .orElse(false);
+        boolean owner = tokenUserId.toString().equals(id) && userRepository.findActiveById(tokenUserId).isPresent();
         if (!owner) {
-            throw new InvalidTokenException("Token não pertence ao profile informado");
+            throw new InvalidTokenException("Token não pertence ao usuário informado");
         }
     }
 
-    /** Envia o evento a todas as conexões abertas do profile e retorna quantas o receberam. */
-    public int publish(String profile, EventResponseDTO event) {
+    /** Envia o evento a todas as conexões abertas do usuário e retorna quantas o receberam. */
+    public int publish(Long userId, EventResponseDTO event) {
+        String id = String.valueOf(userId);
         int delivered = 0;
         for (WebSocketConnection connection : connections) {
-            if (profile.equalsIgnoreCase(connection.pathParam(PROFILE_PARAM))) {
+            if (id.equals(connection.pathParam(USER_ID_PARAM))) {
                 connection.sendText(event).subscribe().with(v -> { }, e -> { });
                 delivered++;
             }

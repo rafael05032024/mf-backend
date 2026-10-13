@@ -61,7 +61,7 @@ public class SendMessageService {
         messageRepository.persist(message);
 
         if (recipient != null) {
-            publishAfterCommit(recipient.profile, message);
+            publishAfterCommit(recipient.id, message);
         }
 
         return new SendMessageResponseDTO(message.id, message.fromUserId, message.toUserId, message.text,
@@ -69,7 +69,7 @@ public class SendMessageService {
     }
 
     // Só avisa o destinatário depois do commit, para não anunciar uma mensagem que sofreu rollback.
-    private void publishAfterCommit(String profile, MessageModel message) {
+    private void publishAfterCommit(Long userId, MessageModel message) {
         Map<String, Object> data = Map.of(
                 "id", message.id,
                 "from", message.fromUserId == null ? 0L : message.fromUserId,
@@ -83,7 +83,7 @@ public class SendMessageService {
             @Override
             public void afterCompletion(int status) {
                 if (status == Status.STATUS_COMMITTED) {
-                    eventService.publish(profile, new EventResponseDTO(EVENT_NEW_MESSAGE, data));
+                    eventService.publish(userId, new EventResponseDTO(EVENT_NEW_MESSAGE, data));
                 }
             }
         });

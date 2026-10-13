@@ -13,7 +13,7 @@ import jakarta.inject.Inject;
 
 /**
  * WebSocket de eventos em tempo real. O frontend conecta em
- * {@code /event/{id}}, onde {@code id} é o profile do
+ * {@code /event/{id}}, onde {@code id} é o id do
  * usuário. A autenticação usa o cookie {@code Token} (ou o header
  * Authorization) enviado no handshake.
  */

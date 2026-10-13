@@ -14,8 +14,8 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-/** Envia um evento para as conexões WebSocket abertas de um profile. */
-@Path("/api/events/{profile}")
+/** Envia um evento para as conexões WebSocket abertas de um usuário. */
+@Path("/api/events/{id}")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class SendEventResource {
@@ -24,8 +24,8 @@ public class SendEventResource {
     EventService eventService;
 
     @POST
-    public EventSentResponseDTO send(@PathParam("profile") String profile, @Valid EventRequestDTO request) {
-        int delivered = eventService.publish(profile, new EventResponseDTO(request.type(), request.data()));
+    public EventSentResponseDTO send(@PathParam("id") Long id, @Valid EventRequestDTO request) {
+        int delivered = eventService.publish(id, new EventResponseDTO(request.type(), request.data()));
         return new EventSentResponseDTO(delivered);
     }
 }

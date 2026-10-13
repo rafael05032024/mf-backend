@@ -156,8 +156,8 @@ public class CreateSignatureService {
         NotificationModel producerNotification = notify(producer.id, PRODUCER_ICON,
                 "@" + subscriber.profile + " acabou de assinar seu perfil!!", now);
 
-        publishAfterCommit(subscriber.profile, EVENT_NEW_SUBSCRIPTION, subscriberNotification);
-        publishAfterCommit(producer.profile, EVENT_NEW_SUBSCRIBER, producerNotification);
+        publishAfterCommit(subscriberId, EVENT_NEW_SUBSCRIPTION, subscriberNotification);
+        publishAfterCommit(producer.id, EVENT_NEW_SUBSCRIBER, producerNotification);
 
         return new CreateSignatureResponseDTO(signature.id, signature.producer, signature.subscriber,
                 signature.expireAt);
@@ -204,7 +204,7 @@ public class CreateSignatureService {
     }
 
     // Só avisa o frontend depois do commit, para não anunciar uma assinatura que sofreu rollback.
-    private void publishAfterCommit(String profile, String eventType, NotificationModel notification) {
+    private void publishAfterCommit(Long userId, String eventType, NotificationModel notification) {
         Map<String, Object> data = Map.of(
                 "id", notification.id,
                 "title", notification.title,
@@ -219,7 +219,7 @@ public class CreateSignatureService {
             @Override
             public void afterCompletion(int status) {
                 if (status == Status.STATUS_COMMITTED) {
-                    eventService.publish(profile, new EventResponseDTO(eventType, data));
+                    eventService.publish(userId, new EventResponseDTO(eventType, data));
                 }
             }
         });
