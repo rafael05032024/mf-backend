@@ -47,14 +47,15 @@ public class UserRepository implements PanacheRepository<UserModel> {
     }
 
     public Optional<UserModel> findActiveByProfile(String profile) {
-        return find("lower(profile) = ?1 and deletedAt is null", profile.toLowerCase()).firstResultOptional();
+        return find("lower(profile) = ?1 and deletedAt is null and pausedAt is null", profile.toLowerCase())
+                .firstResultOptional();
     }
 
     public List<UserModel> findByLevelAboveOneAndProfile(String query) {
         if (query == null || query.isBlank()) {
-            return list("level > 1 and deletedAt is null");
+            return list("level > 1 and deletedAt is null and pausedAt is null");
         }
-        return list("level > 1 and deletedAt is null and lower(profile) like ?1",
+        return list("level > 1 and deletedAt is null and pausedAt is null and lower(profile) like ?1",
                 "%" + query.trim().toLowerCase() + "%");
     }
 

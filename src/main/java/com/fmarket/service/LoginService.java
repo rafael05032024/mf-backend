@@ -44,6 +44,11 @@ public class LoginService {
             throw new ActionForbiddenException("Usuário bloqueado");
         }
 
+        // Login bem-sucedido reativa a conta pausada.
+        if (user.pausedAt != null) {
+            user.pausedAt = null;
+        }
+
         user.ip = ip;
 
         return LoginResponseDTO.ofToken(generateToken(user));

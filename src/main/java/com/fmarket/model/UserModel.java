@@ -57,6 +57,9 @@ public class UserModel {
 
     public String ip;
 
+    @Column(name = "paused_at")
+    public LocalDateTime pausedAt;
+
     @Column(name = "created_at", insertable = false, updatable = false)
     public LocalDateTime createdAt;
 

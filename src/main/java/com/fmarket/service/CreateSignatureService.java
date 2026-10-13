@@ -92,7 +92,7 @@ public class CreateSignatureService {
             throw new SelfSignatureException("Você não pode assinar a si mesmo");
         }
 
-        if (producer.deletedAt != null) {
+        if (producer.deletedAt != null || producer.pausedAt != null) {
             throw new InactiveUserException("Usuário inativo");
         }
 
