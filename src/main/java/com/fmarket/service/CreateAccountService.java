@@ -28,8 +28,8 @@ public class CreateAccountService {
     private static final String WELCOME_TITLE = "Você chegou!! 🎉";
     private static final String WELCOME_TEXT = "Seja muito bem-vindo(a), %s! Estamos muito felizes com a sua chegada. Conte conosco nessa jornada!";
     private static final String WELCOME_ICON = "SmilePlus";
-    private static final int WELCOME_TYPE = 1;
-    private static final String SUPPORT_WELCOME_TEXT = "Seja muito bem-vindo(a)! Este é o nosso canal de suporte. Fique à vontade para compartilhar suas dúvidas, sugestões ou reclamações. Estamos aqui para ouvir você e ajudar no que for preciso!";
+    private static final int WELCOME_TYPE = 4;
+    private static final String SUPPORT_WELCOME_TEXT = "Seja muito bem-vindo(a)! \n Este é o nosso canal de suporte. Fique à vontade para compartilhar suas dúvidas, sugestões ou reclamações. Estamos aqui para ouvir você e ajudar no que for preciso!";
 
     @Inject
     UserRepository userRepository;

@@ -14,7 +14,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 public class PostMidiaValidator {
 
     private static final long MAX_IMAGE_SIZE_BYTES = 5L * 1024 * 1024;
-    private static final long MAX_VIDEO_SIZE_BYTES = 20L * 1024 * 1024;
+    private static final long MAX_VIDEO_SIZE_BYTES = 50L * 1024 * 1024;
     private static final int MAX_DESCRIPTION_LENGTH = 255;
 
     private static final Map<String, String> IMAGE_EXTENSIONS = Map.of(

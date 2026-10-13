@@ -36,9 +36,9 @@ O id do usuário vem do `sub` do token (`SecurityContext`).
    | Tipo (`PostType`) | Content-types                                       | Tamanho máximo |
    |-------------------|-----------------------------------------------------|----------------|
    | `IMAGE`           | `image/jpeg`, `image/png`, `image/webp`             | 5 MB           |
-   | `VIDEO`           | `video/mp4`, `video/webm`, `video/quicktime`        | 20 MB          |
+   | `VIDEO`           | `video/mp4`, `video/webm`, `video/quicktime`        | 50 MB          |
 
-   O limite de vídeo acompanha `quarkus.http.limits.max-body-size` (20M).
+   O limite de vídeo (50 MB) fica abaixo de `quarkus.http.limits.max-body-size` (55M), para que o erro venha da validação com mensagem clara em vez de um corte de conexão (413) do servidor HTTP.
 5. O usuário deve existir e estar ativo (`UserRepository.findActiveById`), senão `Usuário inexistente` (404).
 6. Limite por `level` do usuário: nível 3 não tem limite; nível 2 pode ter até 15 posts (com 15 ou mais, erro 403: `Você já excedeu o número máximo de posts que pode fazer`); nível 1 não pode postar (403: `Seu nível não permite criar posts`).
 7. Só depois das validações o arquivo é enviado ao Azure (`BlobStorageProvider.store`) com o nome `<uuid>.<extensão>`.
