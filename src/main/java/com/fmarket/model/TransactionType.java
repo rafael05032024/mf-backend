@@ -2,7 +2,9 @@ package com.fmarket.model;
 
 public enum TransactionType {
     CREDIT(1),
-    DEBIT(2);
+    DEBIT(2),
+    WITHDRAWAL(3),
+    WITHDRAWAL_REJECTED(4);
 
     private final int code;
 
